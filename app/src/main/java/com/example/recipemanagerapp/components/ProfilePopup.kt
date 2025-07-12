@@ -114,7 +114,7 @@ fun ProfilePopup(
                     modifier = Modifier
                         .width(40.dp)
                         .height(4.dp)
-                        .background(Color.Gray, RoundedCornerShape(2.dp))
+                        .background(accentPurple, RoundedCornerShape(2.dp))
                 )
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -126,7 +126,7 @@ fun ProfilePopup(
                     modifier = Modifier
                         .size(120.dp)
                         .clip(CircleShape)
-                        .border(2.dp, accentPurple, CircleShape)
+                        //.border(2.dp, accentPurple, CircleShape)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
