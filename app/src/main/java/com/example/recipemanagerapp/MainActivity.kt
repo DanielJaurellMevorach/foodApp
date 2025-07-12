@@ -5,10 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -16,238 +20,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.recipemanagerapp.components.CustomNavBar
+import com.example.recipemanagerapp.components.ProfilePopup
 import com.example.recipemanagerapp.ui.theme.RecipeManagerAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         setContent {
             RecipeManagerAppTheme {
                 MainApp()
@@ -261,42 +41,50 @@ fun MainApp() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    var showProfilePopup by remember { mutableStateOf(false) }
 
-    Scaffold(
-        bottomBar = {
-            // Pass the NavController and the current route to the nav bar
-            CustomNavBar(navController = navController, currentRoute = currentRoute)
-        }
-    ) { innerPadding ->
-        // Box to contain the NavHost, applying the inner padding from the Scaffold
-        Box(modifier = Modifier.padding(innerPadding)) {
-            NavHost(navController = navController, startDestination = "home") {
-                // Route for the Home screen, passing the navController
-                composable("home") {
-                    HomeScreen(navController = navController)
-                }
-                // Route for the Favorites screen
-                composable("favorites") {
-                    FavoriteScreen()
-                }
-                // Add other routes here as needed
-                composable("notifications") {
-                    // Placeholder for Notifications screen
-                }
-                composable("profile") {
-                    // Placeholder for Profile screen
-                }
-                // New route for RecipeDetailScreen, accepting a recipeId argument
-                composable(
-                    route = "recipeDetail/{recipeId}",
-                    arguments = listOf(navArgument("recipeId") { type = NavType.IntType })
-                ) { backStackEntry ->
-                    // Extract the recipeId from the arguments
-                    val recipeId = backStackEntry.arguments?.getInt("recipeId")
-                    // Call the RecipeDetailScreen with the navController and recipeId
-                    RecipeDetailScreen(navController = navController, recipeId = recipeId)
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            bottomBar = {
+                if (currentRoute != "recipeDetail/{recipeId}") {
+                    CustomNavBar(navController = navController, currentRoute = currentRoute)
                 }
             }
+        ) { innerPadding ->
+            Box(modifier = Modifier.padding(innerPadding)) {
+                NavHost(navController = navController, startDestination = "home") {
+                    composable("home") {
+                        HomeScreen(
+                            navController = navController,
+                            onProfileClick = { showProfilePopup = true }
+                        )
+                    }
+                    composable("favorites") {
+                        FavoriteScreen()
+                    }
+                    composable("notifications") {
+                        // Placeholder for Notifications screen
+                    }
+                    composable("profile") {
+                        // Placeholder for Profile screen
+                    }
+                    composable(
+                        route = "recipeDetail/{recipeId}",
+                        arguments = listOf(navArgument("recipeId") { type = NavType.IntType })
+                    ) { backStackEntry ->
+                        val recipeId = backStackEntry.arguments?.getInt("recipeId")
+                        RecipeDetailScreen(navController = navController, recipeId = recipeId)
+                    }
+                }
+            }
+        }
+
+        // Display the Profile Popup on top of the Scaffold
+        if (showProfilePopup) {
+            ProfilePopup(
+                profile = profiles.first(),
+                onDismiss = { showProfilePopup = false }
+            )
         }
     }
 }
