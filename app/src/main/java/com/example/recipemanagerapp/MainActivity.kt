@@ -10,16 +10,244 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.recipemanagerapp.ui.theme.RecipeManagerAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         setContent {
             RecipeManagerAppTheme {
                 MainApp()
@@ -43,9 +271,9 @@ fun MainApp() {
         // Box to contain the NavHost, applying the inner padding from the Scaffold
         Box(modifier = Modifier.padding(innerPadding)) {
             NavHost(navController = navController, startDestination = "home") {
-                // Route for the Home screen
+                // Route for the Home screen, passing the navController
                 composable("home") {
-                    HomeScreen()
+                    HomeScreen(navController = navController)
                 }
                 // Route for the Favorites screen
                 composable("favorites") {
@@ -57,6 +285,16 @@ fun MainApp() {
                 }
                 composable("profile") {
                     // Placeholder for Profile screen
+                }
+                // New route for RecipeDetailScreen, accepting a recipeId argument
+                composable(
+                    route = "recipeDetail/{recipeId}",
+                    arguments = listOf(navArgument("recipeId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    // Extract the recipeId from the arguments
+                    val recipeId = backStackEntry.arguments?.getInt("recipeId")
+                    // Call the RecipeDetailScreen with the navController and recipeId
+                    RecipeDetailScreen(navController = navController, recipeId = recipeId)
                 }
             }
         }

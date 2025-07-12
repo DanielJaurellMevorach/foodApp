@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState // Import for detecting press state
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -41,6 +42,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.compose.animation.core.animateFloatAsState // Import for animating float values
+import androidx.compose.ui.draw.alpha
 
 // Data classes and sample data remain here
 data class ProfileData(
@@ -61,6 +67,7 @@ data class RecipeSteps(
 )
 
 data class RecipeData(
+    val id: Int, // Added ID to RecipeData for navigation
     val name: String,
     val image: Int,
     val description: String,
@@ -81,6 +88,7 @@ var maxRating = 5;
 
 var recipe = listOf<RecipeData>(
     RecipeData(
+        id = 1, // Assign unique IDs
         name = "Spaghetti Carbonara",
         image = R.drawable.spaghettibolognese,
         description = "A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.",
@@ -95,6 +103,7 @@ var recipe = listOf<RecipeData>(
         )
     ),
     RecipeData(
+        id = 2, // Assign unique IDs
         name = "Ceasar Salad",
         image = R.drawable.salads,
         description = "A fresh salad with romaine lettuce, croutons, and Caesar dressing.",
@@ -108,6 +117,7 @@ var recipe = listOf<RecipeData>(
         )
     ),
     RecipeData(
+        id = 3, // Assign unique IDs
         name = "Chipotle",
         image = R.drawable.chipotle,
         description = "A spicy Mexican dish with rice, beans, and your choice of meat.",
@@ -121,6 +131,7 @@ var recipe = listOf<RecipeData>(
         )
     ),
     RecipeData(
+        id = 4, // Assign unique IDs
         name = "Churros",
         image = R.drawable.churros,
         description = "A sweet Spanish pastry, deep-fried and coated in sugar.",
@@ -133,8 +144,7 @@ var recipe = listOf<RecipeData>(
             RecipeSteps(3, "Coat in sugar and cinnamon before serving.")
         )
     ),
-
-    )
+)
 
 var categoryList = listOf<CategoryData>(
     CategoryData(
@@ -154,8 +164,13 @@ var categoryList = listOf<CategoryData>(
         image = R.drawable.cocktails
     ),
 )
+
+/**
+ * The main composable for the Home screen.
+ * @param navController The NavController to handle navigation actions.
+ */
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) { // Added navController parameter
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -174,7 +189,8 @@ fun HomeScreen() {
         Spacer(Modifier.height(32.dp))
         LazyFoodCategory()
         Spacer(Modifier.height(32.dp))
-        PopularRecipes()
+        // Pass navController to PopularRecipes
+        PopularRecipes(navController = navController)
     }
 }
 
@@ -432,12 +448,18 @@ fun LazyFoodCategory() {
     }
 }
 
+/**
+ * Composable function to display a list of popular recipes.
+ * Now accepts NavController to enable navigation to detail screen.
+ * @param navController The NavController to handle navigation.
+ */
 @Composable
-fun PopularRecipes() {
+fun PopularRecipes(navController: NavController) { // Added navController parameter
     Column(
         modifier = Modifier
             .fillMaxWidth() // Use fillMaxWidth instead of fillMaxSize inside a Column
             .padding(16.dp),
+
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
@@ -446,10 +468,29 @@ fun PopularRecipes() {
             color = Color.White, // Text color updated
             style = androidx.compose.material3.MaterialTheme.typography.titleMedium
         )
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             recipe.forEach { recipeData ->
+                // Create an InteractionSource for the clickable card
+                val interactionSource = remember { MutableInteractionSource() }
+                // Observe if the card is currently pressed
+                val isPressed by interactionSource.collectIsPressedAsState()
+
+                // Animate the alpha of the icon based on press state
+                val iconAlpha by animateFloatAsState(
+                    targetValue = if (isPressed) 0.5f else 1f, // Fade to 50% opacity when pressed
+                    animationSpec = tween(durationMillis = 150) // Quick fade animation
+                )
+
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(
+                            interactionSource = interactionSource, // Provide the interaction source
+                            indication = null // Disable default ripple for the card
+                        ) {
+                            // Navigate to the RecipeDetailScreen, passing the recipe ID
+                            navController.navigate("recipeDetail/${recipeData.id}")
+                        },
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color(33, 33, 33))
                 ) {
@@ -486,7 +527,8 @@ fun PopularRecipes() {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = "Arrow Icon to recipe details",
-                            tint = Color(0xFF6A54DC)
+                            tint = Color(0xFF6A54DC),
+                            modifier = Modifier.alpha(iconAlpha) // Apply the animated alpha here
                         )
 
                     }
