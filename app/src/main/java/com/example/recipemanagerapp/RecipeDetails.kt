@@ -30,7 +30,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -60,19 +59,17 @@ private val accentYellow = Color(0xFFF0A800)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeDetailScreen(navController: NavController, recipeId: Int?) {
-    // Default to the first recipe if the ID is not found.
-    val recipeData = recipe.find { it.id == recipeId } ?: recipe.first()
 
-    // Create an InteractionSource for the IconButton
     val interactionSource = remember { MutableInteractionSource() }
-    // Observe if the button is currently pressed
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    // Animate the alpha of the icon based on press state
     val iconAlpha by animateFloatAsState(
-        targetValue = if (isPressed) 0.5f else 1f, // Fade to 50% opacity when pressed
-        animationSpec = tween(durationMillis = 150) // Quick fade animation
+        targetValue = if (isPressed) 0.5f else 1f,
+        animationSpec = tween(durationMillis = 150)
     )
+
+    // Default to the first recipe if the ID is not found.
+    val recipeData = recipe.find { it.id == recipeId } ?: recipe.first()
 
     Scaffold(
         topBar = {
@@ -86,25 +83,19 @@ fun RecipeDetailScreen(navController: NavController, recipeId: Int?) {
                     )
                 },
                 navigationIcon = {
-                    IconButton(
-                        onClick = { navController.popBackStack() },
-                        // Provide the interaction source to the IconButton
-                        interactionSource = interactionSource,
-                        modifier = Modifier.clickable(
-                            interactionSource = interactionSource,
-                            indication = null // Disable the ripple indication here
-                        ) {
-                            navController.popBackStack()
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "Back",
-                            tint = accentPurple, // Use consistent accent color.
-                            // Apply the animated alpha here
-                            modifier = Modifier.alpha(iconAlpha)
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                        contentDescription = "Back",
+                        tint = accentPurple,
+                        modifier = Modifier
+                            .alpha(iconAlpha) // Apply the animated alpha
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null, // Disable the ripple indication
+                                onClick = { navController.popBackStack() }
+                            )
+                            .padding(start = 12.dp, end = 12.dp) // Add some padding for a better touch target
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = darkBackground,
