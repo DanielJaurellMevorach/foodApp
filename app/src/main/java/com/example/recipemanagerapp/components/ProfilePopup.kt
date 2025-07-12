@@ -135,7 +135,7 @@ fun ProfilePopup(
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "${profile.points} points",
                     fontSize = 18.sp,
@@ -172,7 +172,7 @@ fun StatItem(value: String, label: String) {
         Text(
             text = label,
             fontSize = 14.sp,
-            color = Color.Gray
+            color = Color.White
         )
     }
 }
